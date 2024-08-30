@@ -20,23 +20,10 @@ Make the Script Executable:
 
 Open a terminal and run:
 
-bash
-Copy code
-chmod +x check_mac_memory.sh
+nano peek_cpu.sh
+copy code to file and save
+chmod +x peek_cpu.sh
 Run the Script:
+./peek_cpu.sh
 
-In the terminal, execute the script by running:
-
-bash
-Copy code
-./check_mac_memory.sh
-Script Explanation
-pages_to_gb Function: Converts the number of memory pages to gigabytes. The page size on macOS is 16KB (16384 bytes).
-
-get_memory_stats Function: Uses vm_stat to gather memory statistics and then calculates total, used, and free memory in gigabytes.
-
-check_cpu Function: Uses the top command to display CPU usage statistics.
-
-Troubleshooting
-Command Not Found: Ensure you are running the script on macOS with the required commands (vm_stat, top, bc) available.
-Permissions: Ensure the script has execution permissions by running chmod +x check_mac_memory.sh.
+Alternatively, add the script to your global environment 
