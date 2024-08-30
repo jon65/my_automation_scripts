@@ -16,58 +16,27 @@ This script checks the current RAM and CPU utilization on macOS, providing infor
 - **macOS**: The script is specifically designed for macOS.
 - **bash**: The script uses bash for execution.
 - **bc**: Basic calculator for floating-point arithmetic.
+Make the Script Executable:
 
-## Installation
+Open a terminal and run:
 
-1. **Download the Script**:
+bash
+Copy code
+chmod +x check_mac_memory.sh
+Run the Script:
 
-   Save the following script as `check_mac_memory.sh`:
+In the terminal, execute the script by running:
 
-   ```bash
-   #!/bin/bash
+bash
+Copy code
+./check_mac_memory.sh
+Script Explanation
+pages_to_gb Function: Converts the number of memory pages to gigabytes. The page size on macOS is 16KB (16384 bytes).
 
-   # Function to convert pages to GB
-   pages_to_gb() {
-       local pages=$1
-       local page_size=16384 # in bytes (16KB)
-       echo "scale=2; $pages * $page_size / 1024 / 1024 / 1024" | bc
-   }
+get_memory_stats Function: Uses vm_stat to gather memory statistics and then calculates total, used, and free memory in gigabytes.
 
-   # Function to get memory statistics
-   get_memory_stats() {
-       echo "Checking RAM utilization on macOS..."
-       
-       # Get the output of vm_stat
-       vm_stats=$(vm_stat)
-       
-       # Extract the values
-       pages_free=$(echo "$vm_stats" | awk '/Pages free/ {print $3}' | sed 's/\.//')
-       pages_active=$(echo "$vm_stats" | awk '/Pages active/ {print $3}' | sed 's/\.//')
-       pages_inactive=$(echo "$vm_stats" | awk '/Pages inactive/ {print $3}' | sed 's/\.//')
-       pages_wired_down=$(echo "$vm_stats" | awk '/Pages wired down/ {print $4}' | sed 's/\.//')
-       
-       # Calculate total RAM in pages
-       total_pages=$((pages_free + pages_active + pages_inactive + pages_wired_down))
-       
-       # Convert values to GB
-       total_ram_gb=$(pages_to_gb "$total_pages")
-       used_ram_gb=$(pages_to_gb "$((pages_active + pages_inactive + pages_wired_down))")
-       free_ram_gb=$(pages_to_gb "$pages_free")
-       
-       echo "Total RAM: $total_ram_gb GB"
-       echo "Used RAM: $used_ram_gb GB"
-       echo "Free RAM: $free_ram_gb GB"
-   }
+check_cpu Function: Uses the top command to display CPU usage statistics.
 
-   # Function to check CPU utilization
-   check_cpu() {
-       echo "Checking CPU utilization on macOS..."
-       top -l 1 -s 0 | grep "CPU usage" | awk '{print "CPU usage: " $3 " user, " $5 " sys, " $7 " idle"}'
-   }
-
-   # Main script execution
-   echo "System Resource Utilization"
-   echo "--------------------------"
-   get_memory_stats
-   echo
-   check_cpu
+Troubleshooting
+Command Not Found: Ensure you are running the script on macOS with the required commands (vm_stat, top, bc) available.
+Permissions: Ensure the script has execution permissions by running chmod +x check_mac_memory.sh.
