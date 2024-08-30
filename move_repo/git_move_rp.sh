@@ -2,20 +2,22 @@
 
 # Usage function
 usage() {
-    echo "Usage: $0 <sub_repo_url> <remote_repo_url>"
+    echo "Usage: $0 <sub_repo_url> <remote_repo_url> <folder_name>"
     echo "  <sub_repo_url> should be the URL of the repository you want to clone."
     echo "  <remote_repo_url> should be the URL of the repository where you want to push the cloned repository."
+    echo "  <folder_name> is the name of the folder in the remote repository where the cloned repo will be placed."
     exit 1
 }
 
-# Check if exactly two arguments are provided
-if [ "$#" -ne 2 ]; then
+# Check if exactly three arguments are provided
+if [ "$#" -ne 3 ]; then
     usage
 fi
 
 # Assign arguments to variables
 sub_repo_url=$1
 remote_repo_url=$2
+folder_name=$3
 
 # Extract the repository name from the URL
 repo_name=$(basename "$sub_repo_url" .git)
@@ -33,20 +35,52 @@ clone_repo() {
 push_to_remote() {
     local repo_dir=$1
     local remote_url=$2
-    echo "Pushing $repo_dir to $remote_url"
-    cd "$repo_dir" || exit
-    git remote remove origin
-    git remote add origin "$remote_url"
-    git push -u origin master
+    local target_folder=$3
+
+    echo "Pushing $repo_dir to $remote_url into folder $target_folder"
+    
+    # Clone the target repository to a temporary directory
+    temp_target_dir=$(mktemp -d)
+    git clone "$remote_url" "$temp_target_dir"
+    
+    cd "$temp_target_dir" || exit
+    
+    # Create the folder for the moved repository
+    mkdir -p "$target_folder"
+    
+    # Remove any existing content in the target folder
+    rm -rf "$target_folder/*"
+    
+    # Copy the cloned repository into the new folder
+    cp -r "$repo_dir"/* "$target_folder/"
+    
+    # Add and commit the changes
+    git add "$target_folder"
+    git commit -m "Add $repo_name repository into $target_folder"
+    
+    # Detect the default branch name in the remote repository
+    default_branch=$(git remote show origin | awk '/HEAD branch/ {print $NF}')
+    
+    # If default branch is not detected, use 'master'
+    if [ -z "$default_branch" ]; then
+        default_branch="master"
+    fi
+    
+    # Push changes to the remote repository
+    git push -u origin "$default_branch"
+    
+    # Clean up temporary target directory
+    cd ..
+    rm -rf "$temp_target_dir"
 }
 
 # Clone the sub-repository into a temporary directory
 clone_repo "$sub_repo_url" "$temp_dir/$repo_name"
 
 # Push the cloned repository to the specified remote repository
-push_to_remote "$temp_dir/$repo_name" "$remote_repo_url"
+push_to_remote "$temp_dir/$repo_name" "$remote_repo_url" "$folder_name"
 
 # Clean up the temporary directory
 rm -rf "$temp_dir"
 
-echo "The repository has been cloned and pushed successfully."
+echo "The repository has been cloned, moved into $folder_name, and pushed successfully."
