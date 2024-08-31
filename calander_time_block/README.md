@@ -90,10 +90,8 @@ python create_event.py <summary> <duration_hours> [start_date] [start_time] [des
     python create_event.py "Quick Sync" 0.5
     ```
 
-o make a Python script globally accessible on macOS, you can follow these steps:
+To make a Python script globally accessible on macOS, you can follow these steps:
 
-1. Create Your Python Script:
-Write your Python script and save it with a .py extension. For example, let's say your script is named my_script.py.
 
 2. Make the Script Executable:
 Open Terminal and navigate to the directory where your script is located. Run the following command to make your script executable:
